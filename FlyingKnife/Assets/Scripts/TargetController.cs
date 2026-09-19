@@ -3,14 +3,23 @@ using UnityEngine;
 public class TargetController : MonoBehaviour
 {
     #region 目标靶子配置
+    [Tooltip("武器偏移比列")]
+    [SerializeField] private float weaponOffestRatio = 0.85f;
     //因为飞刀从固定角度射向靶子，所以可以找到一个切线，因此可以得到300，然后根据图像的真实大小，可以计算出比列
     private const float TargetRadiusRation = 300f / 350;
     private SpriteRenderer _targetSprite;   //目标靶子的图片
     private float _targetRadius = 1.5f;     //目标靶子的半径
     private bool _isRotating = true;        //靶子是否在旋转
     [SerializeField] private float _currentRotationSpeed = 80f; //当前的旋转速度
-
     public float TargetRadius => _targetRadius; //目标半径的属性，外部只读
+    #endregion
+
+    #region 武器命中靶子相关配置
+    private float _weaponOffset;    
+    //武器嵌入的深度
+    public float WeaponOffset => _weaponOffset;
+    //武器嵌入的角度
+    public float IncomingAngle => Mathf.Repeat(-transform.eulerAngles.z, 360);  
     #endregion
 
     #region 生命周期相关
@@ -39,7 +48,8 @@ public class TargetController : MonoBehaviour
     /// </summary>
     private void UpdateTargetRadius()
     {
-        _targetRadius = _targetSprite.sprite.bounds.extents.y * TargetRadiusRation * Mathf.Abs(_targetSprite.transform.localPosition.y);
+        _targetRadius = _targetSprite.sprite.bounds.extents.y * TargetRadiusRation * Mathf.Abs(_targetSprite.transform.localScale.y);
+        _weaponOffset = _targetRadius * weaponOffestRatio;
     }
 
     /// <summary>
