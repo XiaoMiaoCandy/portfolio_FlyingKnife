@@ -31,13 +31,10 @@ public class GameManager : MonoBehaviour
         HandleFireInput();
         if(_currentWeapon == null) return;
         //检测当前武器的发射状态
-        E_HitResult e_HitResult = _currentWeapon.CheckHitResult(_targetController);
-        if(e_HitResult != E_HitResult.stuck) return;
-        //成功命中，当前可发射武器重置
-        _currentWeapon = null;
-        if(_weaponRemaining<=0) return;
-        //如果现在还存在武器，那么就创建并重置武器
-        Invoke(nameof(CreateWeapon), createGap);
+        //E_HitResult e_HitResult = _currentWeapon.CheckHitResult(_targetController);
+        //if(e_HitResult != E_HitResult.stuck) return;
+        //根据武器的状态来进行掉落或附着的逻辑
+        CheckCurrentWeaponHit();
     }
 
     #endregion
@@ -52,7 +49,7 @@ public class GameManager : MonoBehaviour
         if(_currentWeapon == null||_currentWeapon.WeapomState != E_WeapomState.ready ) return;
         //当鼠标按下进行发射(这里在函数中，如果直接检测很可能进不去)
         if(!Input.GetMouseButtonDown(0)) return;
-        _currentWeapon.Launch(weapomShoutSpeed);
+        _currentWeapon.LaunchTrigger(weapomShoutSpeed);
         //武器发射成功
         _weaponRemaining--;
     }
@@ -66,6 +63,30 @@ public class GameManager : MonoBehaviour
         //手动设置位置
         _currentWeapon.SetWeaponPosition(_createWeaponPos.position);
 
+    }
+
+    private void HandleWeaponStuck()
+    {
+        _currentWeapon = null;
+        if (_weaponRemaining <= 0) return;
+        //如果现在还存在武器，那么就创建并重置武器
+        Invoke(nameof(CreateWeapon), createGap);
+    }
+    private void HandleWeaponMissed()
+    {
+        _currentWeapon = null;
+        if (_weaponRemaining <= 0) return;
+        //如果现在还存在武器，那么就创建并重置武器
+        Invoke(nameof(CreateWeapon), createGap*2);
+    }
+    private void CheckCurrentWeaponHit()
+    {
+        if(_currentWeapon == null||_currentWeapon.WeapomState!=E_WeapomState.shout) return;
+        E_HitResult result = _currentWeapon.CheckHitResult(_targetController);
+        if(result == E_HitResult.stuck)
+            HandleWeaponStuck();
+        else if(result == E_HitResult.missed)
+            HandleWeaponMissed();
     }
     #endregion
 }

@@ -19,7 +19,12 @@ public enum E_WeapomState
     /// <summary>
     /// 武器的命中状态，武器依附目标进行旋转
     /// </summary>
-    stuck
+    stuck,
+    /// <summary>
+    /// 武器的掉落阶段，武器没有击中靶子进行下落
+    /// </summary>
+    falling
+
 }
 
 
@@ -35,7 +40,11 @@ public enum E_HitResult
     /// <summary>
     /// 附着在目标上
     /// </summary>
-    stuck
+    stuck,
+    /// <summary>
+    /// 武器掉落
+    /// </summary>
+    missed
 }
 
 
@@ -49,8 +58,13 @@ public class Weapon : MonoBehaviour
     [SerializeField] private float floatingSpeed;   //武器浮动的速度
     [SerializeField] private float floatingRange;   //武器浮动的范围
     [Header("发射相关参数")]
-    [SerializeField] private float _shoutSpeed;  //武器发射的速度
+    [SerializeField] private float _shoutSpeed; //武器发射的速度
     [SerializeField] private Vector3 _startPos; //武器发射的初始位置
+    [Header("掉落相关参数")]
+    [SerializeField] private float fallGravity = 50;     //武器下落的重力，用于计算速度，实现加速下落
+    [SerializeField] private float fallSpinSpeed = 720;   //武器下落的扭矩速度，用于实现其旋转掉落
+    [SerializeField] private float _fallSpeed;       //武器下落的速度
+
     private SpriteRenderer _spriteRenderer;     //武器的精灵图像，用来获取武器的宽
     /// <summary>
     /// 武器的真实宽度
@@ -81,20 +95,32 @@ public class Weapon : MonoBehaviour
                 ReadyWeapon(); break;
             case E_WeapomState.shout:
                 ShoutWeapon(); break;
+            case E_WeapomState.falling:
+                FallWeapon(); break;
         }
     }
     #endregion
 
     #region 武器的发射与待机方法 设置武器的初始位置
    /// <summary>
-   /// 武器的发射准备，在武器发射时调用
+   /// 触发武器发射
    /// 设置武器的当前状态，和发射速度
    /// </summary>
    /// <param name="speed"></param>
-    public void Launch(float speed)
+    public void LaunchTrigger(float speed)
     {
         _weapomState = E_WeapomState.shout;
         _shoutSpeed = speed;
+    }
+
+    /// <summary>
+    /// 触发武器掉落
+    /// </summary>
+    public void FallTrigger()
+    {
+        transform.SetParent(null);
+        _weapomState = E_WeapomState.falling;
+        _fallSpeed = 0;
     }
 
     /// <summary>
@@ -123,6 +149,21 @@ public class Weapon : MonoBehaviour
         float floatPos = Mathf.Sin(Time.time * floatingSpeed) * floatingRange;
         this.transform.position = _startPos + new Vector3(0, floatPos,0);
     }
+    
+    /// <summary>
+    /// 武器进行下落的行为
+    /// </summary>
+    private void FallWeapon()
+    {
+        //计算速度，fallGravity为重力加速度
+        _fallSpeed += fallGravity * Time.deltaTime;
+        //更新武器的当前位置
+        this.transform.position += Vector3.down * _fallSpeed * Time.deltaTime;
+        //进行旋转
+        this.transform.Rotate(0,0,-fallSpinSpeed*Time.deltaTime);
+        //武器掉落后三秒销毁自己
+        Destroy(gameObject,3f);
+    }
     #endregion
 
 
@@ -135,7 +176,7 @@ public class Weapon : MonoBehaviour
     public E_HitResult CheckHitResult(TargetController target)
     {
         //当飞刀还是准备状态时，射击状态仍保持none
-        if(_weapomState == E_WeapomState.ready)return E_HitResult.none;
+        if(_weapomState != E_WeapomState.shout) return E_HitResult.none;
 
         #region 计算命中位置，通过飞刀 距 靶子的位置计算(有问题，为什么会飞过去)
         ////计算武器距靶子的距离
@@ -158,9 +199,13 @@ public class Weapon : MonoBehaviour
         //_weapomState = E_WeapomState.stuck;
         float inpactAngle = target.IncomingAngle;
         //根据插入角 计算是否会撞刀
-        bool overLaps = target.CheckWeaponOverlap(this,inpactAngle);
-        Debug.Log(overLaps ? "撞刀" : "安全");
-
+        if (target.CheckWeaponOverlap(this, inpactAngle))
+        {
+            Debug.Log("检测碰撞：武器掉落");
+            FallTrigger();
+            return E_HitResult.missed;
+        }
+        Debug.Log("检测碰撞：安全命中");
         //命中目标后，触发靶子的震动
         target.TriggerShake();
         StickToTarget(target, inpactAngle);
