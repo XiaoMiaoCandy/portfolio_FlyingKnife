@@ -141,12 +141,14 @@ public class Weapon : MonoBehaviour
         #endregion
 
         //计算命中点
-        float hitPosY = target.transform.position.y - target.TargetRadius;
+        //float hitPosY = target.transform.position.y - target.TargetRadius;
         if (transform.position.y < target.TargetRadius) return E_HitResult.none;
         //将飞刀的位置固定
         //this.transform.position = new Vector3(transform.position.x, hitPosY, transform.position.z);
         //_weapomState = E_WeapomState.stuck;
         float inpactAngle = target.IncomingAngle;
+        //命中目标后，触发靶子的震动
+        target.TriggerShake();
         StickToTarget(target, inpactAngle);
         return E_HitResult.stuck;
     }

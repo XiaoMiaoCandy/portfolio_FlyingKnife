@@ -3,8 +3,15 @@ using UnityEngine;
 public class TargetController : MonoBehaviour
 {
     #region 目标靶子配置
-    [Tooltip("武器偏移比列")]
-    [SerializeField] private float weaponOffestRatio = 0.85f;
+    [Tooltip("武器偏移比列")][SerializeField] private float weaponOffestRatio = 0.85f;
+    [Header("靶子摇晃相关")]
+    [Tooltip("摇晃持续的时间")][SerializeField] private float shakeDuration = 0.12f;
+    [Tooltip("摇晃的振幅")][SerializeField] private float shakeIntensity = 0.08f;
+    private Vector3 _basePosition;          //靶子的初始位置，用来震动结束后位置复原
+    private float _shakeTimer;              //震动的计时器
+    private float _currentShakeIntensity;   //当前的振幅
+
+    //私有变量
     //因为飞刀从固定角度射向靶子，所以可以找到一个切线，因此可以得到300，然后根据图像的真实大小，可以计算出比列
     private const float TargetRadiusRation = 300f / 350;
     private SpriteRenderer _targetSprite;   //目标靶子的图片
@@ -25,6 +32,8 @@ public class TargetController : MonoBehaviour
     #region 生命周期相关
     private void Awake()
     {
+        //获取靶子的初始位置
+        _basePosition = transform.position;
         //获取目标图片
         _targetSprite = GetComponentInChildren<SpriteRenderer>();
         //计算目标的真实半径
@@ -37,6 +46,7 @@ public class TargetController : MonoBehaviour
         {
             this.transform.Rotate(0,0,_currentRotationSpeed * Time.deltaTime);
         }
+        UpdateShake();
     }
     #endregion
 
@@ -59,6 +69,30 @@ public class TargetController : MonoBehaviour
     {
         _isRotating = true;
         this.transform.rotation = Quaternion.identity;
+    }
+   
+    /// <summary>
+    /// 进行震动
+    /// </summary>
+    private void UpdateShake()
+    {
+        //检测震动是否结束
+        if(_shakeTimer > 0)
+        {
+            //进行扣除时间
+            _shakeTimer -= Time.deltaTime;
+            //进行靶子的震动
+            transform.position = _basePosition + (Vector3)(Random.insideUnitCircle*_currentShakeIntensity);
+            return;
+        }
+        //震动结束复原位置
+        transform.position = _basePosition;
+    }
+
+    public void TriggerShake()
+    {
+        _shakeTimer = shakeDuration;
+        _currentShakeIntensity = shakeIntensity;
     }
     #endregion
 }

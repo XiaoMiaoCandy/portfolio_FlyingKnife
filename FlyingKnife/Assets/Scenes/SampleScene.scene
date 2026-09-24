@@ -124,17 +124,6 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
---- !u!114 &67482076 stripped
-MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5505125452298248011, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-  m_PrefabInstance: {fileID: 1766051369}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 827f5f71610b61a4aa84786a85e8ea88, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &212729463
 GameObject:
   m_ObjectHideFlags: 0
@@ -213,9 +202,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c9af2e021695d345b49cc323b01ea32, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxKnifeCount: 5
+  createGap: 0.15
   weapomShoutSpeed: 20
-  _currentWeapon: {fileID: 67482076}
-  _startPos: {fileID: 911516302}
+  weaponPrefab: {fileID: 5505125452298248011, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
+  _createWeaponPos: {fileID: 911516302}
   _targetController: {fileID: 212729465}
 --- !u!4 &291402502
 Transform:
@@ -226,7 +217,7 @@ Transform:
   m_GameObject: {fileID: 291402500}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -1.1552914, y: 0.8552743, z: -0.008257994}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -354,7 +345,7 @@ GameObject:
   - component: {fileID: 911516302}
   m_Layer: 0
   m_HasEditorInfo: 1
-  m_Name: StartPos
+  m_Name: WeaponCreatePos
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -553,63 +544,6 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1001 &1766051369
-PrefabInstance:
-  m_ObjectHideFlags: 0
-  serializedVersion: 2
-  m_Modification:
-    serializedVersion: 3
-    m_TransformParent: {fileID: 0}
-    m_Modifications:
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalPosition.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalPosition.y
-      value: -2.68
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalPosition.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalRotation.w
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalRotation.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalRotation.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalRotation.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.x
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 3964068472503730337, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_LocalEulerAnglesHint.z
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 5252897488788441892, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
-      propertyPath: m_Name
-      value: Weapon
-      objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
-    m_AddedGameObjects: []
-    m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: dbde2e92b1f83fc44ad8eece2002f1db, type: 3}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
@@ -618,5 +552,4 @@ SceneRoots:
   - {fileID: 1721495300}
   - {fileID: 212729464}
   - {fileID: 291402502}
-  - {fileID: 1766051369}
   - {fileID: 911516302}
