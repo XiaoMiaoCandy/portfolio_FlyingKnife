@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 public class TargetController : MonoBehaviour
@@ -27,6 +28,11 @@ public class TargetController : MonoBehaviour
     public float WeaponOffset => _weaponOffset;
     //武器嵌入的角度
     public float IncomingAngle => Mathf.Repeat(-transform.eulerAngles.z, 360);  
+    //命中靶子的列表
+    private readonly List<Weapon> _stuckWeapons = new List<Weapon>();
+    [Header("宽容度 容错")]
+    [Range(0.1f, 1f)]
+    [SerializeField] private float weaponOverlapTolerance = 0.7f;
     #endregion
 
     #region 生命周期相关
@@ -88,11 +94,61 @@ public class TargetController : MonoBehaviour
         //震动结束复原位置
         transform.position = _basePosition;
     }
-
+    /// <summary>
+    /// 触发震动
+    /// </summary>
     public void TriggerShake()
     {
         _shakeTimer = shakeDuration;
         _currentShakeIntensity = shakeIntensity;
+    }
+    
+    /// <summary>
+    /// 将命中靶子的武器 注册到命中_stuckWeapons列表中
+    /// 在武器命中时调用
+    /// </summary>
+    /// <param name="weapon"></param>
+    public void RegisterStuckWeapon(Weapon weapon)
+    {
+        _stuckWeapons.Add(weapon);
+    }
+    #endregion
+
+    #region 武器撞刀相关
+    /// <summary>
+    /// 得到武器占的半宽角度
+    /// 用来计算与另一个武器的半宽角度和，通过该和可以计算两角度的最小切入距离
+    /// </summary>
+    /// <param name="weapon"></param>
+    /// <returns></returns>
+    private float GetWeaponHalfAngle(Weapon weapon)
+    {
+        float halfWidth = weapon.Width * weaponOverlapTolerance * 0.5f;
+        return Mathf.Asin(Mathf.Clamp01(halfWidth /_targetRadius)) * Mathf.Rad2Deg;
+    }
+
+    /// <summary>
+    /// 检测是否会发生撞刀
+    /// </summary>
+    /// <param name="candidate">当前发生武器</param>
+    /// <param name="angle">当前武器的切入角度</param>
+    /// <returns></returns>
+    public bool CheckWeaponOverlap(Weapon candidate, float angle)
+    {
+        //计算当前发射武器的半高
+        float candidateHalfAngle = GetWeaponHalfAngle(candidate);
+        //遍历所有武器
+        foreach (Weapon weapon in _stuckWeapons)
+        {
+            //发射武器 与 已存在武器的最小安全角度距离
+            float minimumAngle = candidateHalfAngle + GetWeaponHalfAngle(weapon);
+            //发射武器的切入角度 与 已存在武器命中角度的距离
+            float angleDistance = Mathf.Abs(Mathf.DeltaAngle(angle, weapon.StuckAngle));
+            //如果 小于最小安全距离则发生撞刀
+            if (angleDistance < minimumAngle)
+                return true;
+        }
+        return false;
     }
     #endregion
 }

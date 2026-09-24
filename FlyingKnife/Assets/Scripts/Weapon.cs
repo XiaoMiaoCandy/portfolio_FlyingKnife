@@ -51,6 +51,12 @@ public class Weapon : MonoBehaviour
     [Header("发射相关参数")]
     [SerializeField] private float _shoutSpeed;  //武器发射的速度
     [SerializeField] private Vector3 _startPos; //武器发射的初始位置
+    private SpriteRenderer _spriteRenderer;     //武器的精灵图像，用来获取武器的宽
+    /// <summary>
+    /// 武器的真实宽度
+    /// </summary>
+    public float Width => _spriteRenderer.sprite.bounds.size.x * Mathf.Abs(transform.localScale.x);
+    
     //武器的当前状态
     private E_WeapomState _weapomState = E_WeapomState.ready;
     public E_WeapomState WeapomState => _weapomState;   //对外的武器状态属性（只读）
@@ -58,6 +64,10 @@ public class Weapon : MonoBehaviour
     #endregion
 
     #region 生命周期函数
+    private void Awake()
+    {
+        _spriteRenderer = GetComponent<SpriteRenderer>();
+    }
     private void Update()
     {
         //if(_weapomState == E_WeapomState.ready&&Input.GetMouseButtonDown(0))
@@ -147,6 +157,10 @@ public class Weapon : MonoBehaviour
         //this.transform.position = new Vector3(transform.position.x, hitPosY, transform.position.z);
         //_weapomState = E_WeapomState.stuck;
         float inpactAngle = target.IncomingAngle;
+        //根据插入角 计算是否会撞刀
+        bool overLaps = target.CheckWeaponOverlap(this,inpactAngle);
+        Debug.Log(overLaps ? "撞刀" : "安全");
+
         //命中目标后，触发靶子的震动
         target.TriggerShake();
         StickToTarget(target, inpactAngle);
@@ -163,6 +177,8 @@ public class Weapon : MonoBehaviour
         transform.SetParent(target.transform);
         transform.localPosition = localPos;
         transform.localRotation = Quaternion.Euler(0, 0, impactAngle);
+        //武器命中靶子，将其注册到列表中
+        target.RegisterStuckWeapon(this);
     }
     #endregion
 }
