@@ -106,6 +106,6 @@ MonoBehaviour:
   floatingRange: 0.5
   _shoutSpeed: 0
   _startPos: {x: 0, y: 0, z: 0}
-  fallGravity: 50
-  fallSpinSpeed: 720
+  fallGravity: 0
+  fallSpinSpeed: 0
   _fallSpeed: 0

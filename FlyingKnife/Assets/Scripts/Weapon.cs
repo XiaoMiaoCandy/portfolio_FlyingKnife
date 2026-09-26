@@ -175,8 +175,8 @@ public class Weapon : MonoBehaviour
     /// <returns></returns>
     public E_HitResult CheckHitResult(TargetController target)
     {
-        //当飞刀还是准备状态时 或 靶子碎裂，射击状态仍保持none
-        if(_weapomState != E_WeapomState.shout || target.IsBreaking) return E_HitResult.none;
+        //当飞刀还是准备状态时，射击状态仍保持none
+        if(_weapomState != E_WeapomState.shout) return E_HitResult.none;
 
         #region 计算命中位置，通过飞刀 距 靶子的位置计算(有问题，为什么会飞过去)
         ////计算武器距靶子的距离

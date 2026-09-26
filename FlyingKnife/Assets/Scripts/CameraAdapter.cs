@@ -44,13 +44,6 @@ public class CameraAdapter : MonoBehaviour
         SetSpriteSize(currentAspect);
     }
 
-    public void SetBackground(Sprite sprite)
-    {
-        //修改背景图片
-        bkRenderer.sprite = sprite;
-        //进行刷新
-        Refresh(_camera.aspect);
-    }
 
     /// <summary>
     /// 设置正交相机的半高，进入游戏刷新，当大小变化时刷新
