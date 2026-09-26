@@ -13,17 +13,18 @@ public class GameManager : MonoBehaviour
     [Tooltip("武器预设体")][SerializeField] private Weapon weaponPrefab;
     [Tooltip("武器的初始位置")][SerializeField] private Transform _createWeaponPos;
     [Tooltip("目标靶子")][SerializeField] private TargetController _targetController;
+    [Tooltip("背景设配")][SerializeField] private CameraAdapter _cameraAdapter; 
     //private bool _isHasLaunchedWeapon;  //当前武器处于发射状态
     private Weapon _currentWeapon;      //当前的发射武器
     private int _weaponRemaining;       //当前武器的库存
+    public StageConfing stageConfing;
     #endregion
 
     #region 生命周期函数
     private void Start()
     {
         //游戏一开始时 获取武器数量 并创建第一把武器
-        _weaponRemaining = maxKnifeCount;
-        CreateWeapon();
+        StartStage();
     }
     private void Update()
     {
@@ -38,6 +39,23 @@ public class GameManager : MonoBehaviour
     }
 
     #endregion
+
+    /// <summary>
+    /// 游戏开始时调用，对关卡进行初始化
+    /// </summary>
+    public void StartStage()
+    {
+        //该关卡的武器数量
+        _weaponRemaining = maxKnifeCount;
+        //设置游戏背景
+        _cameraAdapter.SetBackground(stageConfing.backgroundSprite);
+        //重置靶子，防止上一关卡靶子的数据遗留
+        _targetController.ResetTarget();
+        //初始化靶子
+        _targetController.Init(stageConfing);
+        //创建第一把武器
+        CreateWeapon();
+    }
 
     #region 发射相关方法
     /// <summary>
@@ -68,6 +86,13 @@ public class GameManager : MonoBehaviour
     private void HandleWeaponStuck()
     {
         _currentWeapon = null;
+        if(_targetController.WeaponCount >= stageConfing.weaponCount)
+        {
+            Debug.Log("通关");
+            _targetController.BreakTarget();
+            return;
+        }
+
         if (_weaponRemaining <= 0) return;
         //如果现在还存在武器，那么就创建并重置武器
         Invoke(nameof(CreateWeapon), createGap);
